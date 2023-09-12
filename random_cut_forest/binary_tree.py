@@ -32,18 +32,20 @@ class BinaryTree:
     def reset_cursor(self):
         self.cursor = self.root_node
         
-    def get_leaf_nodes(self, node: NodeType = None, so_far: List[NodeType] = []):
+    def get_leaf_nodes(self, node: NodeType = None):
 
         if not node:
             node = self.root_node
+
+        so_far = []
         
         if node.is_leaf:
-            return so_far + [node]
+            return  [node]
         else:
             if node.left_child:
-                so_far = self.get_leaf_nodes(node.left_child, so_far)
+                so_far = so_far + self.get_leaf_nodes(node.left_child)
             if node.right_child:
-                so_far = self.get_leaf_nodes(node.right_child, so_far)
+                so_far = so_far + self.get_leaf_nodes(node.right_child)
 
         return so_far
 
