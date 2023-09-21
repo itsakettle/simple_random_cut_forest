@@ -1,5 +1,7 @@
-import numpy as np
 from typing import Tuple, NamedTuple, List, Type, Iterable
+import numpy as np
+import logging
+
 from random_cut_forest.binary_tree import BinaryTree
 
 NodeDataType = Type["RandomCutForest.NodeData"]
@@ -22,16 +24,27 @@ class RandomCutForest:
         self.data = data
         self.col_choice_generator = self._choose_col_generator()
 
+        # unlikely to have seperate models stepping on each others toes
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.CRITICAL)
+        formatter = logging.Formatter('%(message)s')
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
+    def set_log_level(self, level: int):
+        self.logger.setLevel(level)
+
     def _grow_a_tree(self, tree: BinaryTree = None) -> BinaryTree:
         
         if not tree:
           i = list(range(self.n_row))
           tree = BinaryTree(RandomCutForest.NodeData(i))
         indent = "  "*tree.cursor.depth
-        print(f"{indent}at depth {tree.cursor.depth}")
+        self.logger.info(f"{indent}at depth {tree.cursor.depth}")
         
         if len(tree.cursor.data.i) <= self.min_node_size:
-            print(f"{indent}min size")
+            self.logger.info(f"{indent}min size")
             return
 
         tree.cursor.data.col = next(self.col_choice_generator)
@@ -47,19 +60,19 @@ class RandomCutForest:
         tree.cursor.add_right_child(RandomCutForest.NodeData(right_i))
 
         if (tree.cursor.depth == self.max_depth):
-            print(f"{indent} max depth")
+            self.logger.info(f"{indent} max depth")
             return
 
         tree.move_left()
-        print(f"{indent}go left")
+        self.logger.info(f"{indent}go left")
         self._grow_a_tree(tree)
         tree.move_up()
-        print(f"{indent}go right")
+        self.logger.info(f"{indent}go right")
         tree.move_right()
         self._grow_a_tree(tree)
         tree.move_up()
 
-        print(f"{indent}finished")
+        self.logger.info(f"{indent}finished")
         return tree
         
 
