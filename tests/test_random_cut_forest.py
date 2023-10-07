@@ -22,7 +22,7 @@ def data_3_dim():
 
 def test_make_cut(data_3_dim):
     rcf = RandomCutForest(data=data_3_dim, max_depth=10, min_node_size=1, ntree=2)
-    cuts = rcf._make_cut(2, 4.2, list(range(rcf.n_row)))
+    cuts = rcf._make_cut(2, 4.2, list(range(rcf.nrow)))
     assert cuts[0] == [0, 3]
     assert cuts[1] == [1, 2, 4, 5, 6, 7, 8, 9, 10]
 
