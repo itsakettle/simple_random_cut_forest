@@ -33,6 +33,14 @@ class BinaryTree:
         self.cursor = self.root_node
         
     def get_leaf_nodes(self, node: NodeType = None):
+        """
+        Recursive function to find the leaf nodes of a tree or nodes.
+        Args:
+            node (NodeType): The node to find the leaf nodes of. If None we find the leaf nodes of the whole tree
+        
+        Returns:
+            List[NodeType]: List of leaf nodes
+        """
 
         if not node:
             node = self.root_node

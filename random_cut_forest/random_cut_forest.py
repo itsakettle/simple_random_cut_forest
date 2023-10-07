@@ -13,8 +13,10 @@ class RandomCutForest:
     n_col: int
     n_row: int
     col_choice_generator: Iterable[int]
+    ntree: int
+    scores: List[float] = None
 
-    def __init__(self, data: np.ndarray, max_depth: int, min_node_size: int):
+    def __init__(self, data: np.ndarray, max_depth: int, min_node_size: int, ntree: int):
         if max_depth < 0:
             raise ValueError("max_depth must be an integer greater than 0")
         
@@ -23,6 +25,7 @@ class RandomCutForest:
         self.n_row, self.n_col = data.shape
         self.data = data
         self.col_choice_generator = self._choose_col_generator()
+        self.ntree = ntree
 
         # unlikely to have seperate models stepping on each others toes
         self.logger = logging.getLogger(__name__)
@@ -32,8 +35,12 @@ class RandomCutForest:
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
-    def set_log_level(self, level: int):
-        self.logger.setLevel(level)
+    def info_messages(self, on=True):
+        if on:
+            self.logger.setLevel(logging.INFO)
+        else:
+            self.logger.setLevel(logging.CRITICAL)
+
 
     def _grow_a_tree(self, tree: BinaryTree = None) -> BinaryTree:
         
@@ -77,7 +84,29 @@ class RandomCutForest:
         
 
     def fit(self):
-        pass
+        # Start from scratch
+        self.trees = []
+        for _ in range(self.ntree):
+            self.trees.append(self._grow_a_tree())
+
+        self.scores = self._generate_scores()
+
+    
+    def _generate_scores(self):
+        
+        total_scores = np.zeros(self.n_row)
+        
+        for tree in self.trees:
+            leafs = tree.get_leaf_nodes()
+            for leaf in leafs:
+                leaf_score = len(leaf.data.i)/self.n_row*leaf.depth
+                total_scores[leaf.data.i] = total_scores[leaf.data.i] + leaf_score
+
+        total_scores = total_scores/len(self.trees)
+
+        return total_scores
+
+
     
     @classmethod
     def _choose_threshold(cls, min: float, max: float) -> float:

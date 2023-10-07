@@ -1,8 +1,8 @@
-# Sentence Meaning
+# Random Cut Forest
 Sketch implementation of a random cut forest
 
 ## Useful test commands
-RUn all tests:
+Run all tests:
 `python -m pytest`
 
 Run all tests and print stdout for passing tests:
